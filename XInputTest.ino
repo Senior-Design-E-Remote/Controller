@@ -1,6 +1,6 @@
 #include <XInput.h>
 
-const int StartButtonPin = 1;
+const int StartButtonPin = 0;
 const int SelectButtonPin = 2;
 
 const int AButtonPin = 3;
@@ -15,14 +15,16 @@ const int LeftJoyXPin = A3;
 const int LeftJoyYPin = A4;
 //const int LeftJoyPushPin = A5;
 
+const int RightJoyXPin = A0;
+const int RightJoyYPin = A1;
 const int led1 = 9;
 const int led2 = 10;
 const int led3 = 11;
 const int led4 = 12;
 const int led5 = 13;
-const int led6 = A0;
-const int led7 = A1;
-const int led8 = A2;
+const int led6 = 1;
+const int led7 = 17;
+const int led8 = 16;
 
 void setup() {
   pinMode(led1, OUTPUT);
@@ -46,6 +48,7 @@ void setup() {
   pinMode(LBButtonPin, INPUT_PULLUP);
 
   XInput.setRange(JOY_LEFT, 0, 1023);  // using analogRead (10-bit ADC)
+  XInput.setRange(JOY_RIGHT, 0, 1023);  // using analogRead (10-bit ADC)
   //pinMode(LeftJoyPushPin, INPUT_PULLUP);
 	XInput.begin();
 }
@@ -90,4 +93,9 @@ void loop() {
 
   // boolean LeftJoyPushState = !digitalRead(LeftJoyPushPin);
   // XInput.setButton(BUTTON_L3, LeftJoyPushState);   // press L3 Right conditionally
+
+  int RightJoyXState = analogRead(RightJoyXPin);
+  int RightJoyYState = analogRead(RightJoyYPin);
+  XInput.setJoystickX(JOY_RIGHT, RightJoyXState, false);
+  XInput.setJoystickY(JOY_RIGHT, RightJoyYState, true); //Y axis needed to be inverted for correct positioning
 }
