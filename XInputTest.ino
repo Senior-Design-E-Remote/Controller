@@ -13,10 +13,12 @@ const int LBButtonPin = 8;
 
 const int LeftJoyXPin = A3;
 const int LeftJoyYPin = A4;
-//const int LeftJoyPushPin = A5;
+const int LeftJoyPushPin = 15;
 
 const int RightJoyXPin = A0;
 const int RightJoyYPin = A1;
+const int RightJoyPushPin = A5;
+
 const int led1 = 9;
 const int led2 = 10;
 const int led3 = 11;
@@ -49,41 +51,43 @@ void setup() {
 
   XInput.setRange(JOY_LEFT, 0, 1023);  // using analogRead (10-bit ADC)
   XInput.setRange(JOY_RIGHT, 0, 1023);  // using analogRead (10-bit ADC)
-  //pinMode(LeftJoyPushPin, INPUT_PULLUP);
-	XInput.begin();
+  pinMode(LeftJoyPushPin, INPUT_PULLUP);
+  pinMode(RightJoyPushPin, INPUT_PULLUP);
+	
+  XInput.begin();
 }
 
 void loop() {
   boolean StartState = digitalRead(StartButtonPin);
-	XInput.setButton(BUTTON_START, StartState);   // press Start conditionally
+  XInput.setButton(BUTTON_START, StartState);   // press Start conditionally
   digitalWrite(led1, StartState);
 
   boolean SelectState = digitalRead(SelectButtonPin);
-	XInput.setButton(BUTTON_BACK, SelectState);   // press Select conditionally
+  XInput.setButton(BUTTON_BACK, SelectState);   // press Select conditionally
   digitalWrite(led2, SelectState);
 
-	boolean AState = digitalRead(AButtonPin);
-	XInput.setButton(BUTTON_A, AState);   // press A conditionally
+  boolean AState = digitalRead(AButtonPin);
+  XInput.setButton(BUTTON_A, AState);   // press A conditionally
   digitalWrite(led3, AState);
 
   boolean XState = digitalRead(XButtonPin);
-	XInput.setButton(BUTTON_X, XState);   // press X conditionally
+  XInput.setButton(BUTTON_X, XState);   // press X conditionally
   digitalWrite(led4, XState);
 
   boolean YState = digitalRead(YButtonPin);
-	XInput.setButton(BUTTON_Y, YState);   // press Y conditionally
+  XInput.setButton(BUTTON_Y, YState);   // press Y conditionally
   digitalWrite(led5, YState);
 
   boolean BState = digitalRead(BButtonPin);
-	XInput.setButton(BUTTON_B, BState);   // press B conditionally
+  XInput.setButton(BUTTON_B, BState);   // press B conditionally
   digitalWrite(led6, BState);
 
   boolean RBState = digitalRead(RBButtonPin);
-	XInput.setButton(BUTTON_RB, RBState);   // press RB conditionally
+  XInput.setButton(BUTTON_RB, RBState);   // press RB conditionally
   digitalWrite(led7, RBState);
 
   boolean LBState = digitalRead(LBButtonPin);
-	XInput.setButton(BUTTON_LB, LBState);   // press LB conditionally
+  XInput.setButton(BUTTON_LB, LBState);   // press LB conditionally
   digitalWrite(led8, LBState);
 
   int LeftJoyXState = analogRead(LeftJoyXPin);
@@ -91,11 +95,14 @@ void loop() {
   XInput.setJoystickX(JOY_LEFT, LeftJoyXState, false);
   XInput.setJoystickY(JOY_LEFT, LeftJoyYState, true); //Y axis needed to be inverted for correct positioning
 
-  // boolean LeftJoyPushState = !digitalRead(LeftJoyPushPin);
-  // XInput.setButton(BUTTON_L3, LeftJoyPushState);   // press L3 Right conditionally
+  boolean LeftJoyPushState = !digitalRead(LeftJoyPushPin);
+  XInput.setButton(TRIGGER_LEFT, LeftJoyPushState);   // press L3 Right conditionally
 
   int RightJoyXState = analogRead(RightJoyXPin);
   int RightJoyYState = analogRead(RightJoyYPin);
   XInput.setJoystickX(JOY_RIGHT, RightJoyXState, false);
   XInput.setJoystickY(JOY_RIGHT, RightJoyYState, true); //Y axis needed to be inverted for correct positioning
+
+  boolean RightJoyPushState = !digitalRead(RightJoyPushPin);
+  XInput.setButton(TRIGGER_RIGHT, RightJoyPushState);   // press L3 Right conditionally
 }
