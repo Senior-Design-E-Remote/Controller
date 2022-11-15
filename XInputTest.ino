@@ -59,35 +59,35 @@ void setup() {
 
 void loop() {
   boolean StartState = digitalRead(StartButtonPin);
-  XInput.setButton(BUTTON_START, StartState);   // press Start conditionally
+	XInput.setButton(BUTTON_START, StartState);   // press Start conditionally
   digitalWrite(led1, StartState);
 
   boolean SelectState = digitalRead(SelectButtonPin);
-  XInput.setButton(BUTTON_BACK, SelectState);   // press Select conditionally
+	XInput.setButton(BUTTON_BACK, SelectState);   // press Select conditionally
   digitalWrite(led2, SelectState);
 
-  boolean AState = digitalRead(AButtonPin);
-  XInput.setButton(BUTTON_A, AState);   // press A conditionally
+	boolean AState = digitalRead(AButtonPin);
+	XInput.setButton(BUTTON_A, AState);   // press A conditionally
   digitalWrite(led3, AState);
 
   boolean XState = digitalRead(XButtonPin);
-  XInput.setButton(BUTTON_X, XState);   // press X conditionally
+	XInput.setButton(BUTTON_X, XState);   // press X conditionally
   digitalWrite(led4, XState);
 
   boolean YState = digitalRead(YButtonPin);
-  XInput.setButton(BUTTON_Y, YState);   // press Y conditionally
+	XInput.setButton(BUTTON_Y, YState);   // press Y conditionally
   digitalWrite(led5, YState);
 
   boolean BState = digitalRead(BButtonPin);
-  XInput.setButton(BUTTON_B, BState);   // press B conditionally
+	XInput.setButton(BUTTON_B, BState);   // press B conditionally
   digitalWrite(led6, BState);
 
   boolean RBState = digitalRead(RBButtonPin);
-  XInput.setButton(BUTTON_RB, RBState);   // press RB conditionally
+	XInput.setButton(BUTTON_RB, RBState);   // press RB conditionally
   digitalWrite(led7, RBState);
 
   boolean LBState = digitalRead(LBButtonPin);
-  XInput.setButton(BUTTON_LB, LBState);   // press LB conditionally
+	XInput.setButton(BUTTON_LB, LBState);   // press LB conditionally
   digitalWrite(led8, LBState);
 
   int LeftJoyXState = analogRead(LeftJoyXPin);
