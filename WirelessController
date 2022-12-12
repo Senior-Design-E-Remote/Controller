@@ -1,0 +1,97 @@
+//Esp being used is the ESP32-DevKitC-32E
+//ESP32 BLE Controller Library: https://github.com/lemmingDev/ESP32-BLE-Gamepad
+
+#include <Arduino.h>
+#include <BleGamepad.h>
+
+const int numButtons = 6;
+
+const int leftJoyX = 39;
+const int leftJoyY = 36;
+
+const int buttons[numButtons] = {35,32,33,25,26,27}; //A, X, Y, B, Start, Select
+
+const byte buttonNames[numButtons] = {BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6};
+
+bool oldButtonStates[numButtons] = {0,0,0,0,0,0};
+
+BleGamepad bleGamepad("E-Remote", "Team 24", 100);
+
+void setup()
+{
+  Serial.begin(115200);
+
+  for(int i = 0; i < numButtons; i++){ // Initialize all buttons
+
+    pinMode(buttons[i], INPUT_PULLUP);
+  }
+  BleGamepadConfiguration bleGamepadConfig;
+  bleGamepadConfig.setButtonCount(numButtons);
+  bleGamepad.begin(&bleGamepadConfig);
+  // The default bleGamepad.begin() above enables 16 buttons, all axes, one hat, and no simulation controls or special buttons
+}
+
+void loop()
+{   
+    if (bleGamepad.isConnected())
+    {
+        for(int i = 0; i < numButtons; i++){ //Set button values
+          bool buttonState = digitalRead(buttons[i]);
+          if(oldButtonStates[i] != buttonState){ //Only send new signal if button state changed
+            oldButtonStates[i] = buttonState;
+            if(buttonState){
+              bleGamepad.press(buttonNames[i]);
+              Serial.print("Button ");
+              Serial.print(i);
+              Serial.println(" Pressed");
+            }          
+            else{
+              bleGamepad.release(buttonNames[i]);
+              Serial.print("Button ");
+              Serial.print(i);
+              Serial.println(" Unpressed");           
+            }
+          }
+        }
+
+        //Set Joystick Values (currently messed up)
+
+        // Serial.println("1"); 
+        // bleGamepad.setLeftThumb(0, 32767);  //Top Right
+        // delay(1500);
+        // Serial.println("2");
+        // bleGamepad.setLeftThumb(32767, 0);  //Center
+        // delay(1500);
+        // Serial.println("3");
+        // bleGamepad.setLeftThumb(16383, 16383);  //Top Left
+        // delay(1500);
+        // Serial.println("4");
+        // bleGamepad.setLeftThumb(0,0); //Bottom Right
+        // delay(1500);
+
+        int leftX = 0;
+        int leftY = 0;
+
+        for(int i = 0; i < 10; i++){ //sum 10 readings
+          leftX += analogRead(leftJoyX);
+          leftY += analogRead(leftJoyY);
+        }
+        // get average of 10 readings and map them to Joystick range
+        leftX /= 10;
+        leftY /= 10;
+
+        leftX = map(leftX, 0, 4095, 127, -127;
+        leftY = map(leftY, 0, 4095, -127, 127);
+
+        //127, -127
+
+        Serial.print("X: ");
+        Serial.println(leftX);
+        Serial.print("Y: ");
+        Serial.println(leftY);
+
+        
+        bleGamepad.setX(leftX);
+        bleGamepad.setY(leftY);
+    }
+}
