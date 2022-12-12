@@ -54,20 +54,7 @@ void loop()
           }
         }
 
-        //Set Joystick Values (currently messed up)
-
-        // Serial.println("1"); 
-        // bleGamepad.setLeftThumb(0, 32767);  //Top Right
-        // delay(1500);
-        // Serial.println("2");
-        // bleGamepad.setLeftThumb(32767, 0);  //Center
-        // delay(1500);
-        // Serial.println("3");
-        // bleGamepad.setLeftThumb(16383, 16383);  //Top Left
-        // delay(1500);
-        // Serial.println("4");
-        // bleGamepad.setLeftThumb(0,0); //Bottom Right
-        // delay(1500);
+        //Set Joystick Values. Note: Joysticks need 3.3V?
 
         int leftX = 0;
         int leftY = 0;
@@ -80,16 +67,22 @@ void loop()
         leftX /= 10;
         leftY /= 10;
 
-        leftX = map(leftX, 0, 4095, 127, -127;
-        leftY = map(leftY, 0, 4095, -127, 127);
+        // if(digitalRead(27)){
+        //   Serial.print("Premap X: ");
+        //   Serial.print(leftX);
+        //   Serial.print(", Premap Y: ");
+        //   Serial.println(leftY);
+        // }
 
-        //127, -127
+        leftX = map(leftX, 0, 4095, 0, 32767);
+        leftY = map(leftY, 0, 4095, 0, 32767);
 
-        Serial.print("X: ");
-        Serial.println(leftX);
-        Serial.print("Y: ");
-        Serial.println(leftY);
-
+        // if(digitalRead(27)){
+        //   Serial.print("X: ");
+        //   Serial.print(leftX);
+        //   Serial.print(", Y: ");
+        //   Serial.println(leftY);
+        // }
         
         bleGamepad.setX(leftX);
         bleGamepad.setY(leftY);
