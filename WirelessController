@@ -3,40 +3,62 @@
 
 #include <Arduino.h>
 #include <BleGamepad.h>
+#include <Wire.h>
+#include "Adafruit_MPR121.h"
 
-const int numButtons = 6;
+#ifndef _BV
+#define _BV(bit) (1 << (bit)) 
+#endif
+
+const int numButtons = 10;
 
 const int leftJoyX = 39;
 const int leftJoyY = 36;
+const int rightJoyX = 14;
+const int rightJoyY = 12; 
 
-const int buttons[numButtons] = {35,32,33,25,26,27}; //A, X, Y, B, Start, Select
+const int buttons[numButtons] = {23,16,17,5,18,19,0,3,6,9}; //A, X, Y, B, Start, Select Note: last 4 are for touch buttons
 
-const byte buttonNames[numButtons] = {BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6};
+const byte buttonNames[numButtons] = {BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6, BUTTON_7, BUTTON_8, BUTTON_9, BUTTON_10};
 
-bool oldButtonStates[numButtons] = {0,0,0,0,0,0};
+bool oldButtonStates[numButtons] = {0,0,0,0,0,0,0,0,0,0};
+
+uint16_t currtouched = 0;
+Adafruit_MPR121 cap = Adafruit_MPR121();
 
 BleGamepad bleGamepad("E-Remote", "Team 24", 100);
 
 void setup()
-{
+{ 
   Serial.begin(115200);
+  
+  cap.begin(0x5A);
 
-  for(int i = 0; i < numButtons; i++){ // Initialize all buttons
+  for(int i = 0; i < numButtons-4; i++){ // Initialize all buttons
 
     pinMode(buttons[i], INPUT_PULLUP);
   }
   BleGamepadConfiguration bleGamepadConfig;
   bleGamepadConfig.setButtonCount(numButtons);
+  bleGamepadConfig.setWhichAxes(true, true, true, false, false, true, false, false); //only enable X, Y, Z, RZ
   bleGamepad.begin(&bleGamepadConfig);
-  // The default bleGamepad.begin() above enables 16 buttons, all axes, one hat, and no simulation controls or special buttons
+  //The default bleGamepad.begin() above enables 16 buttons, all axes, one hat, and no simulation controls or special buttons
 }
 
 void loop()
 {   
     if (bleGamepad.isConnected())
     {
-        for(int i = 0; i < numButtons; i++){ //Set button values
-          bool buttonState = digitalRead(buttons[i]);
+        bool buttonState;
+        currtouched = cap.touched();
+
+        for(int i = 0; i < numButtons; i++){ //Set button values, subtract 4 for the capacitive touch buttons
+          if(i < 6){
+            buttonState = digitalRead(buttons[i]); //Normal Buttons    
+          }
+          else {
+            buttonState = currtouched & _BV(buttons[i]); //Capacitive Buttons
+          }
           if(oldButtonStates[i] != buttonState){ //Only send new signal if button state changed
             oldButtonStates[i] = buttonState;
             if(buttonState){
@@ -58,33 +80,27 @@ void loop()
 
         int leftX = 0;
         int leftY = 0;
+        int rightX = 0;
+        int rightY = 0;
 
         for(int i = 0; i < 10; i++){ //sum 10 readings
           leftX += analogRead(leftJoyX);
           leftY += analogRead(leftJoyY);
+          rightX += analogRead(rightJoyX);
+          rightY += analogRead(rightJoyY);
         }
         // get average of 10 readings and map them to Joystick range
         leftX /= 10;
         leftY /= 10;
-
-        // if(digitalRead(27)){
-        //   Serial.print("Premap X: ");
-        //   Serial.print(leftX);
-        //   Serial.print(", Premap Y: ");
-        //   Serial.println(leftY);
-        // }
+        rightX /= 10;
+        rightY /= 10;
 
         leftX = map(leftX, 0, 4095, 0, 32767);
         leftY = map(leftY, 0, 4095, 0, 32767);
-
-        // if(digitalRead(27)){
-        //   Serial.print("X: ");
-        //   Serial.print(leftX);
-        //   Serial.print(", Y: ");
-        //   Serial.println(leftY);
-        // }
+        rightX = map(rightX, 0, 4095, 0, 32767);
+        rightY = map(rightY, 0, 4095, 0, 32767);       
         
-        bleGamepad.setX(leftX);
-        bleGamepad.setY(leftY);
+        bleGamepad.setLeftThumb(leftX,leftY);
+        bleGamepad.setRightThumb(rightX,rightY);
     }
 }
