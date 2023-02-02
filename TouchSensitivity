@@ -1,0 +1,34 @@
+
+#include <Wire.h>
+#include "Adafruit_MPR121.h"
+
+#ifndef _BV
+#define _BV(bit) (1 << (bit)) 
+#endif
+
+
+const int led = 9;
+const int slide = A1;
+uint16_t currtouched = 0;
+Adafruit_MPR121 cap = Adafruit_MPR121();
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  pinMode(slide,INPUT);
+  pinMode(led, OUTPUT);
+  
+  cap.begin(0x5A);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  //setThreshholds(uint8_t touch, uint8_t release)
+  int slideVal = analogRead(slide);
+  Serial.print("Slide val: ");
+  Serial.println(slideVal);
+
+  currtouched = cap.touched();
+  bool buttonState = currtouched & _BV(1); //Capacitive Buttons
+  analogWrite(led, buttonState);  
+}
