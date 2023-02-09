@@ -5,16 +5,13 @@
 #define _BV(bit) (1 << (bit)) 
 #endif
 
-
-const int led = A2;
-const int slide = A1;
+const int led = 6;
 uint16_t currtouched = 0;
 Adafruit_MPR121 cap = Adafruit_MPR121();
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  pinMode(slide,INPUT);
   pinMode(led, OUTPUT);
   
   cap.begin(0x5A);
@@ -22,39 +19,33 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  uint8_t t = 12;
-uint8_t r = 6;
+  // uint8_t t = 12;
+  // uint8_t r = 6;
 
-  // cap.writeRegister(MPR121_ECR,0x00);
-  // while(cap.readRegister16(MPR121_ECR) != 0x00){
-  //   Serial.println("Not Stopped");
-  // }
-  // Serial.println("Now I'm Stopped");
-
-  cap.setThreshholds(t,r); //default 12,6
-  Serial.println("Starting delay");
-  delay(1000);
-  Serial.println("ending Delay");
-  // cap.writeRegister(MPR121_ECR,0x8F);  
+  // cap.setThreshholds(t,r); //default 12,6  
   
   
-  
-  int slideVal = analogRead(slide);
-  // Serial.print("Slide val: ");
-  // Serial.println(slideVal);
-
   currtouched = cap.touched();
-  bool buttonState = currtouched & _BV(1); //Capacitive Buttons
-  //  int ledVal = map(slideVal, 0 , 1024, 0, 255);
-  // analogWrite(led, ledVal);
-  digitalWrite(led, buttonState);
+  bool buttonState = currtouched & _BV(1); //Capacitive Button
 
-  Serial.println(buttonState);
+  digitalWrite(led,buttonState);
 
-  //   uint16_t x = cap.readRegister8(MPR121_TOUCHTH_0 + 2 * 0);
-  //   Serial.print("Reg value: ");
-  //   Serial.println(x);
+  // Serial.println(buttonState);
 
-  // Serial.println("");
-  // Serial.println("");  
+    uint16_t x = cap.readRegister8(MPR121_TOUCHTH_0 + 2 * 0);
+    Serial.print("Threshold Val: ");
+    Serial.println(x);
+
+    int f = cap.filteredData(1);
+    int b = cap.baselineData(1);
+
+    Serial.print("Baseline: ");
+    Serial.print(b);
+    Serial.print(", Filtered: ");
+    Serial.println(f);
+
+  Serial.println("");
+  Serial.println("");
+
+  delay(1000);  
 }
