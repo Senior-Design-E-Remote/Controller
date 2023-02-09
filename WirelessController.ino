@@ -41,6 +41,7 @@ void setup()
   BleGamepadConfiguration bleGamepadConfig;
   bleGamepadConfig.setButtonCount(numButtons);
   bleGamepadConfig.setWhichAxes(true, true, true, false, false, true, false, false); //only enable X, Y, Z, RZ
+  bleGamepadConfig.setWhichSimulationControls(false,false,false,false,false);
   bleGamepad.begin(&bleGamepadConfig);
   //The default bleGamepad.begin() above enables 16 buttons, all axes, one hat, and no simulation controls or special buttons
 }
@@ -95,12 +96,59 @@ void loop()
         rightX /= 10;
         rightY /= 10;
 
+        // Serial.print("leftX: ");
+        // Serial.print(leftX);
+        // Serial.print(", leftY: ");
+        // Serial.print(leftY);
+        // Serial.print(", rightX: ");
+        // Serial.print(rightX);
+        // Serial.print(", rightY: ");
+        // Serial.println(rightY);
+
         leftX = map(leftX, 0, 4095, 0, 32767);
         leftY = map(leftY, 0, 4095, 0, 32767);
         rightX = map(rightX, 0, 4095, 0, 32767);
         rightY = map(rightY, 0, 4095, 0, 32767);       
+
+        // if(leftX>=1830 && leftX<=1840){
+        //   leftX=16384;
+        // }
+        // else{
+        //   leftX = map(leftX, 0, 4095, 0, 32767);
+        // }
         
+        // if(leftY>=1870 &&leftY<=1875){
+        //   leftY=16384;
+        // }
+        // else{
+        //   leftY = map(leftY, 0, 4095, 0, 32767);          
+        // }
+        
+        // if(rightX>=1915 && rightX<=1921){
+        //   rightX=16384;
+        // }
+        // else{
+        //   rightX = map(rightX, 0, 4095, 0, 32767);
+        // }
+        
+        // if(rightY>=1905 && rightY<=1912){
+        //   rightY = 16384; 
+        // }
+        // else{
+        //   rightY = map(rightY, 0, 4095, 0, 32767);
+        // }
+	
         bleGamepad.setLeftThumb(leftX,leftY);
         bleGamepad.setRightThumb(rightX,rightY);
+
+        Serial.print("rightX: ");
+        Serial.print(rightX);
+        Serial.print(", rightY: ");
+        Serial.println(rightY);
+
+        // bleGamepad.setAxes(leftX, leftY, NULL, rightX, rightY);
+        
+        // bleGamepad.sendReport();
+        // delay(500);
     }
 }
