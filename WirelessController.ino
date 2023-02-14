@@ -17,7 +17,7 @@ const int leftJoyY = 36;
 const int rightJoyX = 14;
 const int rightJoyY = 12; 
 
-const int buttons[numButtons] = {23,16,17,5,18,19,0,3,6,9}; //A, X, Y, B, Start, Select Note: last 4 are for touch buttons
+const int buttons[numButtons] = {16,17,0,10,2,3,11,5,6,9}; //A, X, Y, B, Start, Select Note: last 4 are for touch buttons
 
 const byte buttonNames[numButtons] = {BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6, BUTTON_7, BUTTON_8, BUTTON_9, BUTTON_10};
 
@@ -31,6 +31,8 @@ BleGamepad bleGamepad("E-Remote", "Team 24", 100);
 void setup()
 { 
   Serial.begin(115200);
+
+  Serial.println("hi");
   
   cap.begin(0x5A);
 
@@ -54,11 +56,19 @@ void loop()
         currtouched = cap.touched();
 
         for(int i = 0; i < numButtons; i++){ //Set button values, subtract 4 for the capacitive touch buttons
-          if(i < 6){
+          if(i < 2){
             buttonState = digitalRead(buttons[i]); //Normal Buttons    
           }
           else {
             buttonState = currtouched & _BV(buttons[i]); //Capacitive Buttons
+          }
+          Serial.print("Button ");
+          Serial.print(buttons[i]);
+          if(buttonState){
+            Serial.println("on");
+          }
+          else{
+            Serial.println("off");
           }
           if(oldButtonStates[i] != buttonState){ //Only send new signal if button state changed
             oldButtonStates[i] = buttonState;
@@ -96,48 +106,11 @@ void loop()
         rightX /= 10;
         rightY /= 10;
 
-        // Serial.print("leftX: ");
-        // Serial.print(leftX);
-        // Serial.print(", leftY: ");
-        // Serial.print(leftY);
-        // Serial.print(", rightX: ");
-        // Serial.print(rightX);
-        // Serial.print(", rightY: ");
-        // Serial.println(rightY);
-
         leftX = map(leftX, 0, 4095, 0, 32767);
         leftY = map(leftY, 0, 4095, 0, 32767);
         rightX = map(rightX, 0, 4095, 0, 32767);
         rightY = map(rightY, 0, 4095, 0, 32767);       
 
-        // if(leftX>=1830 && leftX<=1840){
-        //   leftX=16384;
-        // }
-        // else{
-        //   leftX = map(leftX, 0, 4095, 0, 32767);
-        // }
-        
-        // if(leftY>=1870 &&leftY<=1875){
-        //   leftY=16384;
-        // }
-        // else{
-        //   leftY = map(leftY, 0, 4095, 0, 32767);          
-        // }
-        
-        // if(rightX>=1915 && rightX<=1921){
-        //   rightX=16384;
-        // }
-        // else{
-        //   rightX = map(rightX, 0, 4095, 0, 32767);
-        // }
-        
-        // if(rightY>=1905 && rightY<=1912){
-        //   rightY = 16384; 
-        // }
-        // else{
-        //   rightY = map(rightY, 0, 4095, 0, 32767);
-        // }
-	
         bleGamepad.setLeftThumb(leftX,leftY);
         bleGamepad.setRightThumb(rightX,rightY);
 
@@ -145,10 +118,5 @@ void loop()
         Serial.print(rightX);
         Serial.print(", rightY: ");
         Serial.println(rightY);
-
-        // bleGamepad.setAxes(leftX, leftY, NULL, rightX, rightY);
-        
-        // bleGamepad.sendReport();
-        // delay(500);
     }
 }
