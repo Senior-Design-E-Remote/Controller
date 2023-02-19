@@ -19,7 +19,7 @@ const int rightJoyY = 4;
 
 const int batteryPin = 13;
 int batteryCount = 0;
-float oldBatteryLevel = 0.0;
+uint8_t oldBatteryLevel = 0;
 float batteryLevel = 0.0;
 
 const int buttons[numButtons] = {12,27,11,10,9,8,7,6,5,4};//,9,6,3,0}; //first two are manual buttons, 11-4 are the core 8, 9 6 3 0 are the dpad
@@ -71,29 +71,29 @@ void loop()
 {   
     if (bleGamepad.isConnected())
     {
-      // if(batteryCount >= 30){ //average battery level over time before reporting
+      if(batteryCount >= 30){ //average battery level over time before reporting
         
-      //   batteryLevel = batteryLevel + analogRead(batteryPin);
+      batteryLevel = (batteryLevel + analogRead(batteryPin))/batteryCount; //take one more reading and average the fotal readings
 
-      //   uint8_t bl = (uint8_t) batteryLevel; //cast float to unit6_t
+      float voltage = (batteryLevel * (5.0 / 1023.0))*2;
 
-      //   if(batteryLevel != oldBatteryLevel{
+      uint8_t bl = ((uint8_t) voltage*100) - 320; //cast float to unit6_t and convert to battery percentage (LiPoly ranges from 3.2 to 4.2V)
 
-      //     //float voltage = sensorValue * (5.0 / 1023.0);
+      if(bl != oldBatteryLevel{
 
-      //     bleGamepad.setBatteryLevel(bl);
-      //     oldBatteryLevel = bl; 
-      //   })
+        bleGamepad.setBatteryLevel(bl);
+        oldBatteryLevel = bl; 
+      }
 
-      //   batteryCount = 0;
+        batteryCount = 0; // reset count and battery level
 
-      //   batteryLevel = 0;
-      // }
-      // else{
-      //   batteryLevel = batteryLevel + analogRead(batteryPin);
+        batteryLevel = 0;
+      }
+      else{
+        batteryLevel = batteryLevel + analogRead(batteryPin);
 
-      //   batteryCount = batteryCount+1;
-      // }
+        batteryCount = batteryCount+1;
+      }
 
       bool buttonState;
       coreCurrtouched = coreCap.touched();
