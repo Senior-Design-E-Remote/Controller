@@ -79,7 +79,7 @@ void loop()
 
       uint8_t bl = ((uint8_t) voltage*100) - 320; //cast float to unit6_t and convert to battery percentage (LiPoly ranges from 3.2 to 4.2V)
 
-      if(bl != oldBatteryLevel{
+      if(bl != oldBatteryLevel){
 
         bleGamepad.setBatteryLevel(bl);
         oldBatteryLevel = bl; 
