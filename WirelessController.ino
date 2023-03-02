@@ -10,34 +10,27 @@
 #define _BV(bit) (1 << (bit)) 
 #endif
 
-const int numButtons = 10;//14;
+const int numButtons = 11;//14;
 
 const int leftJoyX = 25;
 const int leftJoyY = 26;
 const int rightJoyX = 36;
 const int rightJoyY = 4; 
 
-const int batteryPin = 13;
-int batteryCount = 0;
-uint8_t oldBatteryLevel = 0;
-float batteryLevel = 0.0;
+const int buttons[numButtons] = {12,27,15,0,1,3,4,6,7,9,10};//,9,6,3,0}; //first two are manual buttons, 11-4 are the core 8, 9 6 3 0 are the dpad
 
-const int buttons[numButtons] = {12,27,11,10,9,8,7,6,5,4};//,9,6,3,0}; //first two are manual buttons, 11-4 are the core 8, 9 6 3 0 are the dpad
+const byte buttonNames[numButtons] = {BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6, BUTTON_7, BUTTON_8, BUTTON_9, BUTTON_10, BUTTON_11};//, BUTTON_11, BUTTON_12, BUTTON_13, BUTTON_14};
 
-const byte buttonNames[numButtons] = {BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6, BUTTON_7, BUTTON_8, BUTTON_9, BUTTON_10};//, BUTTON_11, BUTTON_12, BUTTON_13, BUTTON_14};
-
-bool oldButtonStates[numButtons] = {0,0,0,0,0,0,0,0,0,0};//,0,0,0,0};
+bool oldButtonStates[numButtons] = {0,0,0,0,0,0,0,0,0,0,0};//,0,0,0,0};
 
 uint16_t coreCurrtouched = 0;
 Adafruit_MPR121 coreCap = Adafruit_MPR121();
 
-BleGamepad bleGamepad("E-Remote", "Team 24", 100);
+BleGamepad bleGamepad("E-Remote", "Team 24");
 
 void setup()
 { 
   Serial.begin(115200);
-
-  pinMode(batteryPin, INPUT);
   
   while(!coreCap.begin(0x5A)){
 
@@ -50,10 +43,14 @@ void setup()
 
     pinMode(buttons[i], INPUT_PULLUP);
   }  
+
+  pinMode(buttons[2], INPUT);
+
   BleGamepadConfiguration bleGamepadConfig;
   bleGamepadConfig.setButtonCount(numButtons);
   bleGamepadConfig.setWhichAxes(true, true, true, false, false, true, false, false); //only enable X, Y, Z, RZ
   bleGamepadConfig.setWhichSimulationControls(false,false,false,false,false);
+  
   bleGamepad.begin(&bleGamepadConfig);
 }
 
@@ -63,13 +60,12 @@ void loop()
   {
     bool buttonState;
     coreCurrtouched = coreCap.touched();
-    // dpCurrtouched = dpCap.touched();
     
     for(int i = 0; i < numButtons; i++){ //Set button values, subtract 4 for the capacitive touch buttons
-      if(i < 2){
+      if(i < 3){
         buttonState = digitalRead(buttons[i]); //Normal Buttons    
       }
-      else if(i >=2 && i < 11){ //core 8 buttons
+      else{ //core 8 buttons
         buttonState = coreCurrtouched & _BV(buttons[i]); //Core 8 Capacitive Buttons
       }
 
@@ -118,3 +114,5 @@ void loop()
     bleGamepad.setRightThumb(rightX,rightY);
   }
 }
+
+//https://www.youtube.com/watch?v=KTMq3vARsko
