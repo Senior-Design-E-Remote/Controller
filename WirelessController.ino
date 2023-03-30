@@ -13,10 +13,11 @@
 
 #define numButtons 16
 
-#define leftJoyX 34 //A2
-#define leftJoyY 39 //A3
-#define rightJoyX 26 //A0
-#define rightJoyY 25 //A1 
+#define leftJoyX 25 //A1
+#define leftJoyY 26 //A0
+#define rightJoyX 39 //A3
+#define rightJoyY 34 //A2
+#define restVal 16383 //Neutral rest value for joysticks
 
 const int buttons[numButtons] = {27,33,32,15,0,1,2,3,4,5,6,7,8,9,10,11}; //first two are manual buttons, the other 12 are the touch capacitiv buttons connected to the MPR121
 
@@ -91,22 +92,47 @@ void loop()
     int rightX = 0;
     int rightY = 0;
 
-    for(int i = 0; i < 10; i++){ //sum 10 readings
+    for(int i = 0; i < 100; i++){ //sum 10 readings
       leftX += analogRead(leftJoyX);
       leftY += analogRead(leftJoyY);
       rightX += analogRead(rightJoyX);
       rightY += analogRead(rightJoyY);
     }
     // get average of 10 readings and map them to Joystick range
-    leftX /= 10;
-    leftY /= 10;
-    rightX /= 10;
-    rightY /= 10;
+    leftX /= 100;
+    leftY /= 100;
+    rightX /= 100;
+    rightY /= 100;
 
-    leftX = map(leftX, 0, 4095, 32767, 0);
-    leftY = map(leftY, 0, 4095, 0, 32767);
-    rightX = map(rightX, 0, 4095, 32767, 0);
-    rightY = map(rightY, 0, 4095, 0, 32767);       
+    //Filter Noise. Note: these values are for when the device is powered using Micro USb
+
+    if(leftX>=1916 && leftX<=1925){
+      leftX = restVal;
+    }
+    else{
+      leftX = map(leftX, 0, 4095, 0, 32767);
+    }
+
+    if(leftY>=1889 && leftY<=1896){
+      leftY = restVal;
+    }
+    else{
+      leftY = map(leftY, 0, 4095, 32767, 0);
+    }
+
+    if(rightX>=1806 && rightX<=1813){
+      rightX = restVal;
+    }
+    else{
+      rightX = map(rightX, 0, 4095, 0, 32767);
+    }
+
+    if(rightY>=1852 && rightY<=1859){
+      rightY = restVal;
+    }
+    else{
+      rightY = map(rightY, 0, 4095, 32767, 0);  
+    }       
 
     bleGamepad.setLeftThumb(leftX,leftY);
     bleGamepad.setRightThumb(rightX,rightY);
