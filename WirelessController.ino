@@ -1,5 +1,6 @@
-//Esp being used is the ESP32-DevKitC-32E
+//Esp being used is the Adafruit HUZZAH32 - ESP32 Feather
 //ESP32 BLE Controller Library: https://github.com/lemmingDev/ESP32-BLE-Gamepad
+//MPR121 Chip: https://www.adafruit.com/product/1982
 
 #include <Arduino.h>
 #include <BleGamepad.h>
@@ -10,18 +11,18 @@
 #define _BV(bit) (1 << (bit)) 
 #endif
 
-#define numButtons 15
+#define numButtons 16
 
-#define leftJoyX 25
-#define leftJoyY 26
-#define rightJoyX 36
-#define rightJoyY 4 
+#define leftJoyX 34 //A2
+#define leftJoyY 39 //A3
+#define rightJoyX 26 //A0
+#define rightJoyY 25 //A1 
 
-const int buttons[numButtons] = {12,27,15,12,27,33,15,0,1,3,4,6,7,9,10}; //first two are manual buttons, 11-4 are the core 8, the last four are the dpad
+const int buttons[numButtons] = {27,33,32,15,0,1,2,3,4,5,6,7,8,9,10,11}; //first two are manual buttons, the other 12 are the touch capacitiv buttons connected to the MPR121
 
-const byte buttonNames[numButtons] = {BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6, BUTTON_7, BUTTON_8, BUTTON_9, BUTTON_10, BUTTON_11, BUTTON_12, BUTTON_13, BUTTON_14, BUTTON_15};//, BUTTON_11, BUTTON_12, BUTTON_13, BUTTON_14};
+const byte buttonNames[numButtons] = {BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6, BUTTON_7, BUTTON_8, BUTTON_9, BUTTON_10, BUTTON_11, BUTTON_12, BUTTON_13, BUTTON_14, BUTTON_15, BUTTON_16}; //BUTTON_1 and BUTTON_2 are the physical buttons
 
-bool oldButtonStates[numButtons] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+bool oldButtonStates[numButtons] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //Save previous state of each button
 
 uint16_t coreCurrtouched = 0;
 Adafruit_MPR121 coreCap = Adafruit_MPR121();
@@ -31,7 +32,7 @@ BleGamepad bleGamepad("E-Remote", "Team 24");
 void setup()
 { 
   Serial.begin(115200);
-  
+  // coreCap.begin(0x5A);
   while(!coreCap.begin(0x5A)){
 
     Serial.println("Core Cap Not Connected");
@@ -39,12 +40,11 @@ void setup()
 
   Serial.println("Core Cap Connected");
 
-  for(int i = 0; i < 8; i++){ // Initialize all buttons
-
-    pinMode(buttons[i], INPUT_PULLUP);
-  }  
-
-  pinMode(buttons[2], INPUT);
+  for(int i = 0;i < 4;i++){ //Initialize Physical Buttons
+    pinMode(buttons[i], INPUT_PULLUP); 
+  }
+  // pinMode(buttons[2], INPUT_PULLDOWN);
+  // pinMode(buttons[3], INPUT_PULLDOWN);
 
   BleGamepadConfiguration bleGamepadConfig;
   bleGamepadConfig.setButtonCount(numButtons);
@@ -62,36 +62,29 @@ void loop()
     bool buttonState;
     coreCurrtouched = coreCap.touched();
     
-    for(int i = 0; i < numButtons; i++){ //Set button values, subtract 4 for the capacitive touch buttons
-      if(i < 3){
-        buttonState = 0;
-        //buttonState = digitalRead(buttons[i]); //Normal Buttons    
+    for(int i = 0; i < numButtons; i++){ //Loop through buttons and check state
+      if(i < 2){//Physical Buttons: Start, Select
+        buttonState = digitalRead(buttons[i]);   
       }
-      else if(i >= 3 && i < 7){
-        buttonState = digitalRead(buttons[i]); //Normal Buttons        
+      else if(i >=2 && i <4){ //Physical Buttons: Joystick Push-Ins need to be inverted for some reason
+        buttonState = !digitalRead(buttons[i]);
       }
-      else{ //core 8 buttons
-        buttonState = coreCurrtouched & _BV(buttons[i]); //Core 8 Capacitive Buttons
+      else{ ////Capacitive Buttons: X,Y,LT,LB,RB,RT,A,B + DPad
+        buttonState = coreCurrtouched & _BV(buttons[i]); 
       }      
 
       if(oldButtonStates[i] != buttonState){ //Only send new signal if button state changed
         oldButtonStates[i] = buttonState;
         if(buttonState){
           bleGamepad.press(buttonNames[i]);
-          Serial.print("Button ");
-          Serial.print(i);
-          Serial.println(" Pressed");
         }          
         else{
-          bleGamepad.release(buttonNames[i]);
-          Serial.print("Button ");
-          Serial.print(i);
-          Serial.println(" Unpressed");           
+          bleGamepad.release(buttonNames[i]);         
         }
       }
     }
 
-    //Set Joystick Values. Note: Joysticks need 3.3V?
+    //Set Joystick Values Note: The joysticks fluctuate between values when at rest so 16383 is sent when they are within these ranges since 16383 is the true rest value
 
     int leftX = 0;
     int leftY = 0;
