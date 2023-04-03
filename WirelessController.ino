@@ -6,6 +6,7 @@
 #include <BleGamepad.h>
 #include <Wire.h>
 #include "Adafruit_MPR121.h"
+#include <ResponsiveAnalogRead.h>
 
 #ifndef _BV
 #define _BV(bit) (1 << (bit)) 
@@ -18,6 +19,13 @@
 #define rightJoyX 39 //A3
 #define rightJoyY 34 //A2
 #define restVal 16383 //Neutral rest value for joysticks
+
+//Set up Responsive Analog Reads for each joystick axis
+
+ResponsiveAnalogRead respLeftX(leftJoyX, true);
+ResponsiveAnalogRead respLeftY(leftJoyY, true);
+ResponsiveAnalogRead respRightX(rightJoyX, true);
+ResponsiveAnalogRead respRightY(rightJoyY, true);
 
 const int buttons[numButtons] = {27,33,32,15,0,1,2,3,4,5,6,7,8,9,10,11}; //first two are manual buttons, the other 12 are the touch capacitiv buttons connected to the MPR121
 
@@ -44,12 +52,10 @@ void setup()
   for(int i = 0;i < 4;i++){ //Initialize Physical Buttons
     pinMode(buttons[i], INPUT_PULLUP); 
   }
-  // pinMode(buttons[2], INPUT_PULLDOWN);
-  // pinMode(buttons[3], INPUT_PULLDOWN);
 
   BleGamepadConfiguration bleGamepadConfig;
   bleGamepadConfig.setButtonCount(numButtons);
-  bleGamepadConfig.setHatSwitchCount(1);
+  bleGamepadConfig.setHatSwitchCount(0);
   bleGamepadConfig.setWhichAxes(true, true, true, false, false, true, false, false); //only enable X, Y, Z, RZ
   bleGamepadConfig.setWhichSimulationControls(false,false,false,false,false);
   
@@ -92,46 +98,45 @@ void loop()
     int rightX = 0;
     int rightY = 0;
 
-    for(int i = 0; i < 100; i++){ //sum 10 readings
-      leftX += analogRead(leftJoyX);
-      leftY += analogRead(leftJoyY);
-      rightX += analogRead(rightJoyX);
-      rightY += analogRead(rightJoyY);
+    //Filter Noise
+
+    respLeftX.update();
+    respLeftY.update();
+    respRightX.update();
+    respRightY.update();
+
+    leftX = respLeftX.getValue();
+    leftY = respLeftY.getValue();
+    rightX = respRightX.getValue();
+    rightY = respRightY.getValue();
+
+    if(respLeftX.hasChanged()){
+      leftX = map(leftX, 0, 4095, 0, 32767);
+      
     }
-    // get average of 10 readings and map them to Joystick range
-    leftX /= 100;
-    leftY /= 100;
-    rightX /= 100;
-    rightY /= 100;
-
-    //Filter Noise. Note: these values are for when the device is powered using Micro USb
-
-    if(leftX>=1916 && leftX<=1925){
+    else{
       leftX = restVal;
     }
-    else{
-      leftX = map(leftX, 0, 4095, 0, 32767);
-    }
 
-    if(leftY>=1889 && leftY<=1896){
-      leftY = restVal;
-    }
-    else{
+    if(respLeftY.hasChanged()){
       leftY = map(leftY, 0, 4095, 32767, 0);
     }
-
-    if(rightX>=1806 && rightX<=1813){
-      rightX = restVal;
-    }
     else{
+      leftY = restVal;
+    }
+
+    if(respRightX.hasChanged()){
       rightX = map(rightX, 0, 4095, 0, 32767);
     }
+    else{
+      rightX = restVal;
+    }
 
-    if(rightY>=1852 && rightY<=1859){
-      rightY = restVal;
+    if(respRightY.hasChanged()){
+      rightY = map(rightY, 0, 4095, 32767, 0);
     }
     else{
-      rightY = map(rightY, 0, 4095, 32767, 0);  
+      rightY = restVal;  
     }       
 
     bleGamepad.setLeftThumb(leftX,leftY);
