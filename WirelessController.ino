@@ -53,6 +53,16 @@ void setup()
     pinMode(buttons[i], INPUT_PULLUP); 
   }
 
+  respLeftX.setAnalogResolution(4096);
+  respLeftY.setAnalogResolution(4096);
+  respRightX.setAnalogResolution(4096);
+  respRightY.setAnalogResolution(4096);
+
+  respLeftX.setActivityThreshold(30);
+  respLeftY.setActivityThreshold(30);
+  respRightX.setActivityThreshold(30);
+  respRightY.setActivityThreshold(30);
+
   BleGamepadConfiguration bleGamepadConfig;
   bleGamepadConfig.setButtonCount(numButtons);
   bleGamepadConfig.setHatSwitchCount(0);
@@ -110,34 +120,33 @@ void loop()
     rightX = respRightX.getValue();
     rightY = respRightY.getValue();
 
-    if(respLeftX.hasChanged()){
-      leftX = map(leftX, 0, 4095, 0, 32767);
-      
-    }
-    else{
+    if(!respLeftX.hasChanged() && leftX < 2000 && leftX > 1800){
       leftX = restVal;
     }
-
-    if(respLeftY.hasChanged()){
-      leftY = map(leftY, 0, 4095, 32767, 0);
-    }
     else{
+      leftX = map(leftX, 0, 4095, 0, 32767);
+    }
+
+    if(!respLeftY.hasChanged() && leftY < 2000 && leftY > 1800){
       leftY = restVal;
     }
-
-    if(respRightX.hasChanged()){
-      rightX = map(rightX, 0, 4095, 0, 32767);
+    else{  
+      leftY = map(leftY, 0, 4095, 32767, 0);
     }
-    else{
+
+    if(!respRightX.hasChanged() && rightX < 2000 && rightX > 1800){
       rightX = restVal;
     }
+    else{
+      rightX = map(rightX, 0, 4095, 0, 32767);
+    }
 
-    if(respRightY.hasChanged()){
-      rightY = map(rightY, 0, 4095, 32767, 0);
+    if(!respRightY.hasChanged() && rightY < 2000 && rightY > 1800){
+      rightY = restVal;
     }
     else{
-      rightY = restVal;  
-    }       
+      rightY = map(rightY, 0, 4095, 32767, 0);
+    }
 
     bleGamepad.setLeftThumb(leftX,leftY);
     bleGamepad.setRightThumb(rightX,rightY);
