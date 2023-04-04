@@ -1,9 +1,18 @@
 #include <BleGamepad.h>
+#include <ResponsiveAnalogRead.h>
 
-#define leftJoyX 12
-#define leftJoyY 14
-#define rightJoyX 27
-#define rightJoyY 26 
+#define leftJoyX 25 //A1
+#define leftJoyY 26 //A0
+#define rightJoyX 39 //A3
+#define rightJoyY 34 //A2
+#define restVal 16383 //Neutral rest value for joysticks
+
+ResponsiveAnalogRead respLeftX(leftJoyX, true);
+ResponsiveAnalogRead respLeftY(leftJoyY, true);
+ResponsiveAnalogRead respRightX(rightJoyX, true);
+ResponsiveAnalogRead respRightY(rightJoyY, true);
+
+BleGamepad bleGamepad("Joy Test", "Team 24");
 
 void printAxesMaxMin(){
 
@@ -24,17 +33,17 @@ void printAxesMaxMin(){
   int rightX = 0;
   int rightY = 0;
 
-  for(int i = 0; i < 1000; i++){ //sum 10 readings
+  for(int i = 0; i < 100; i++){ //sum 10 readings
     leftX += analogRead(leftJoyX);
     leftY += analogRead(leftJoyY);
     rightX += analogRead(rightJoyX);
     rightY += analogRead(rightJoyY);
   }
   // get average of 10 readings and map them to Joystick range
-  leftX /= 1000;
-  leftY /= 1000;
-  rightX /= 1000;
-  rightY /= 1000;
+  leftX /= 100;
+  leftY /= 100;
+  rightX /= 100;
+  rightY /= 100;
 
   if(firstRead){
     Serial.println("Printing Max and Min Values for the Axes");
@@ -48,6 +57,24 @@ void printAxesMaxMin(){
     minRightX = rightX;
     minRightY = rightY;
 
+    Serial.println("Orignial Vals: ");
+    Serial.print("minLeftX: ");
+    Serial.println(minLeftX);
+    Serial.print("maxLeftX: ");
+    Serial.println(maxLeftX);
+    Serial.print("minLeftY: ");
+    Serial.println(minLeftY);
+    Serial.print("maxLeftY: ");
+    Serial.println(maxLeftY);
+    Serial.print("minRightX: ");
+    Serial.println(minRightX);
+    Serial.print("maxRightX: ");
+    Serial.println(maxRightX);
+    Serial.print("minRightY: ");
+    Serial.println(minRightY);
+    Serial.print("maxRightY: ");
+    Serial.println(maxRightY);
+    Serial.println("");
     delay(5000);
     firstRead = 0;
   }
@@ -98,41 +125,7 @@ void printAxesMaxMin(){
   }      
 }
 
-BleGamepad bleGamepad("Joy Test", "Team 24");
-
-void setup() {
-  Serial.begin(115200);
-  pinMode(16, INPUT_PULLUP);  
-  pinMode(17, INPUT_PULLUP);  
-  BleGamepadConfiguration bleGamepadConfig;
-  bleGamepadConfig.setButtonCount(2);
-  bleGamepadConfig.setWhichAxes(true, true, true, false, false, true, false, false); //only enable X, Y, Z, RZ
-  bleGamepadConfig.setWhichSimulationControls(false,false,false,false,false);
-  
-  bleGamepad.begin(&bleGamepadConfig);
-  delay(2000);
-}
-
-void loop() {
-  
-  //printAxesMaxMin();
-
-  if(digitalRead(16)){
-    bleGamepad.press(BUTTON_1);
-  }
-  else{
-    bleGamepad.release(BUTTON_1);
-  }
-  if(digitalRead(17)){
-    bleGamepad.press(BUTTON_2);
-  }
-  else{
-    bleGamepad.release(BUTTON_2);
-  }
-
-  float restVal = 16383;
-
-  //for(int restVal = 16383; restVal < 16386; restVal++) { //Uncomment if you want to cycle through Joystick rest Values
+void testJoystickCalibration(){
 
   int leftX = 0;
   int leftY = 0;
@@ -151,46 +144,28 @@ void loop() {
   rightX /= 100;
   rightY /= 100;
 
-  Serial.print("restVal: ");
-  Serial.print(restVal);
-  Serial.print(", LeftX: ");
+  Serial.print("Analog Reads: ");
+  Serial.print("LeftX: ");
   Serial.print(leftX);
   Serial.print(", LeftY: ");
   Serial.print(leftY);
   Serial.print(", rightX: ");
   Serial.print(rightX);
   Serial.print(", rightY: ");
-  Serial.print(rightY);
+  Serial.println(rightY);
 
-  if(leftX>1925 && leftX<1937){
-    leftX = restVal;
-  }
-  else{
-    leftX = map(leftX, 0, 4095, 32767, 0);
-  }
+  respLeftX.update();
+  respLeftY.update();
+  respRightX.update();
+  respRightY.update();
 
-  if(leftY>1927 && leftY<1941){
-    leftY = restVal;
-  }
-  else{
-    leftY = map(leftY, 0, 4095, 0, 32767);
-  }
+  leftX = respLeftX.getValue();
+  leftY = respLeftY.getValue();
+  rightX = respRightX.getValue();
+  rightY = respRightY.getValue();
 
-  if(rightX>1875 && rightX<1932){
-    rightX = restVal;
-  }
-  else{
-    rightX = map(rightX, 0, 4095, 32767, 0);
-  }
-
-  if(rightY>1870 && rightY<1927){
-    rightY = restVal;
-  }
-  else{
-    rightY = map(rightY, 0, 4095, 0, 32767); 
-  }
-
-  Serial.print(", LeftX: ");
+  Serial.print("Responsive Analog: ");
+  Serial.print("LeftX: ");
   Serial.print(leftX);
   Serial.print(", LeftY: ");
   Serial.print(leftY);
@@ -200,7 +175,79 @@ void loop() {
   Serial.print(rightY);
   Serial.println("");
 
+  if(!respLeftX.hasChanged() && leftX < 2000 && leftX > 1800){
+    leftX = restVal;
+  }
+  else{
+    leftX = map(leftX, 0, 4095, 0, 32767);
+  }
+
+  if(!respLeftY.hasChanged() && leftY < 2000 && leftY > 1800){
+    leftY = restVal;
+  }
+  else{  
+    leftY = map(leftY, 0, 4095, 32767, 0);
+  }
+
+  if(!respRightX.hasChanged() && rightX < 2000 && rightX > 1800){
+    rightX = restVal;
+  }
+  else{
+    rightX = map(rightX, 0, 4095, 0, 32767);
+  }
+
+  if(!respRightY.hasChanged() && rightY < 2000 && rightY > 1800){
+    rightY = restVal;
+  }
+  else{
+    rightY = map(rightY, 0, 4095, 32767, 0);
+  }
+
   bleGamepad.setLeftThumb(leftX,leftY);
   bleGamepad.setRightThumb(rightX,rightY);
-  //}
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(27, INPUT_PULLUP);  
+  pinMode(33, INPUT_PULLUP);  
+
+  respLeftX.setAnalogResolution(4096);
+  respLeftY.setAnalogResolution(4096);
+  respRightX.setAnalogResolution(4096);
+  respRightY.setAnalogResolution(4096);
+
+  respLeftX.setActivityThreshold(30);
+  respLeftY.setActivityThreshold(30);
+  respRightX.setActivityThreshold(30);
+  respRightY.setActivityThreshold(30);
+
+  BleGamepadConfiguration bleGamepadConfig;
+  bleGamepadConfig.setButtonCount(2);
+  bleGamepadConfig.setHatSwitchCount(0);
+  bleGamepadConfig.setWhichAxes(true, true, true, false, false, true, false, false); //only enable X, Y, Z, RZ
+  bleGamepadConfig.setWhichSimulationControls(false,false,false,false,false);
+  
+  bleGamepad.begin(&bleGamepadConfig);
+  delay(4000);
+}
+
+void loop() {
+  
+  //printAxesMaxMin();
+
+  if(digitalRead(27)){
+    bleGamepad.press(BUTTON_1);
+  }
+  else{
+    bleGamepad.release(BUTTON_1);
+  }
+  if(digitalRead(33)){
+    bleGamepad.press(BUTTON_2);
+  }
+  else{
+    bleGamepad.release(BUTTON_2);
+  }
+
+  testJoystickCalibration();
 }
