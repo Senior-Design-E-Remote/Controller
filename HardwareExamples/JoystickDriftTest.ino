@@ -125,12 +125,37 @@ void printAxesMaxMin(){
   }      
 }
 
-void testJoystickCalibration(){
+bool test = 1;
+
+void testJoystickCalibration(bool pluggedIn){
 
   int leftX = 0;
   int leftY = 0;
   int rightX = 0;
   int rightY = 0;
+
+  int minLeftX, maxLeftX, minLeftY, maxLeftY, minRightX, maxRightX, minRightY, maxRightY;
+
+  // if(pluggedIn){
+    minLeftX = 1850;
+    maxLeftX = 1950;
+    minLeftY = 1850;
+    maxLeftY = 1950;
+    minRightX = 1800;
+    maxRightX = 1900;
+    minRightY = 1800;
+    maxRightY = 1869;
+  // }
+  // else{
+  //   minLeftX = 1695;
+  //   maxLeftX = 1705;
+  //   minLeftY = 1710;
+  //   maxLeftY = 1720;
+  //   minRightX = 1635;
+  //   maxRightX = 1645;
+  //   minRightY = 1660;
+  //   maxRightY = 1670;
+  // }
 
   for(int i = 0; i < 100; i++){ //sum 1000 readings
     leftX += analogRead(leftJoyX);
@@ -175,28 +200,28 @@ void testJoystickCalibration(){
   Serial.print(rightY);
   Serial.println("");
 
-  if(!respLeftX.hasChanged() && leftX < 2000 && leftX > 1800){
+  if(!respLeftX.hasChanged() && leftX >= minLeftX && leftX <= maxLeftX){
     leftX = restVal;
   }
   else{
     leftX = map(leftX, 0, 4095, 0, 32767);
   }
 
-  if(!respLeftY.hasChanged() && leftY < 2000 && leftY > 1800){
+  if(!respLeftY.hasChanged() && leftY >= minLeftY && leftY <= maxLeftY){
     leftY = restVal;
   }
   else{  
     leftY = map(leftY, 0, 4095, 32767, 0);
   }
 
-  if(!respRightX.hasChanged() && rightX < 2000 && rightX > 1800){
+  if(!respRightX.hasChanged() && rightX >= minRightX && rightX <= maxRightX){
     rightX = restVal;
   }
   else{
     rightX = map(rightX, 0, 4095, 0, 32767);
   }
 
-  if(!respRightY.hasChanged() && rightY < 2000 && rightY > 1800){
+  if(!respRightY.hasChanged() && rightY >= minRightY && rightY <= maxRightY){
     rightY = restVal;
   }
   else{
@@ -209,6 +234,8 @@ void testJoystickCalibration(){
 
 void setup() {
   Serial.begin(115200);
+
+  pinMode(4, INPUT);
   pinMode(27, INPUT_PULLUP);  
   pinMode(33, INPUT_PULLUP);  
 
@@ -249,5 +276,5 @@ void loop() {
     bleGamepad.release(BUTTON_2);
   }
 
-  testJoystickCalibration();
+  testJoystickCalibration(digitalRead(4));
 }
