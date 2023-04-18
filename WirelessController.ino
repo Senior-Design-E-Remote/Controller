@@ -19,6 +19,61 @@
 #define rightJoyY 34 //A2
 #define restVal 16383 //Neutral rest value for joysticks
 
+//Initial resting range values for each joystick axis, set to max val for the minimum and negative val for the maximum so they're garunteed tpo change
+
+int minLeftX = 4096;
+int minLeftY = 4096;
+int minRightX = 4096;
+int minRightY = 4096; 
+int maxLeftX = -1;
+int maxLeftY = -1;
+int maxRightX = -1;
+int maxRightY = -1;
+
+void setMinMax(){ //This function takes several thousand readings from the joysticks at rest. This sets the max and min val for the resting range and stores them in a global variable later used in the loop 
+  
+  int leftX = 0;
+  int leftY = 0;
+  int rightX = 0;
+  int rightY = 0;
+
+  for(int i=0;i<3000;i++){
+
+    leftX = analogRead(leftJoyX);
+    leftY = analogRead(leftJoyY);
+    rightX = analogRead(rightJoyX);
+    rightY = analogRead(rightJoyY);
+
+    if(leftX>maxLeftX){
+      maxLeftX = leftX;
+    }
+    if(leftX<minLeftX){
+      minLeftX = leftX;
+    }
+    
+    if(leftY>maxLeftY){
+      maxLeftY = leftY;
+    }
+    if(leftY<minLeftY){
+      minLeftY = leftY;
+    }
+
+    if(rightX>maxRightX){
+      maxRightX = rightX;
+    }
+    if(rightX<minRightX){
+      minRightX = rightX;
+    }
+
+    if(rightY>maxRightY){
+      maxRightY = rightY;
+    }
+    if(rightY<minRightY){
+      minRightY = rightY;
+    }
+  }
+}
+
 const int buttons[numButtons] = {27,33,32,15,0,1,2,3,4,5,6,7,8,9,10,11}; //first two are manual buttons, the other 12 are the touch capacitiv buttons connected to the MPR121
 
 const byte buttonNames[numButtons] = {BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6, BUTTON_7, BUTTON_8, BUTTON_9, BUTTON_10, BUTTON_11, BUTTON_12, BUTTON_13, BUTTON_14, BUTTON_15, BUTTON_16}; //BUTTON_1 and BUTTON_2 are the physical buttons
@@ -33,7 +88,7 @@ BleGamepad bleGamepad("E-Remote", "Team 24");
 void setup()
 { 
   Serial.begin(115200);
-  // coreCap.begin(0x5A);
+
   while(!coreCap.begin(0x5A)){
 
     Serial.println("Core Cap Not Connected");
@@ -44,8 +99,6 @@ void setup()
   for(int i = 0;i < 4;i++){ //Initialize Physical Buttons
     pinMode(buttons[i], INPUT_PULLUP); 
   }
-  // pinMode(buttons[2], INPUT_PULLDOWN);
-  // pinMode(buttons[3], INPUT_PULLDOWN);
 
   BleGamepadConfiguration bleGamepadConfig;
   bleGamepadConfig.setButtonCount(numButtons);
@@ -54,6 +107,8 @@ void setup()
   bleGamepadConfig.setWhichSimulationControls(false,false,false,false,false);
   
   bleGamepad.begin(&bleGamepadConfig);
+
+  setMinMax(); //Note: needs to be after bleGamepad.begin for correct axis Min/Maxes for joystciks when on battery power
 }
 
 void loop()
@@ -104,39 +159,37 @@ void loop()
     rightX /= 100;
     rightY /= 100;
 
-    //Filter Noise. Note: these values are for when the device is powered using Micro USb
+    //Filter Noise: check if axis value falls within neutral range and set to rest value if it does. Else, map the axis val to 0-32767
 
-    if(leftX>=1916 && leftX<=1925){
+    if(minLeftX<leftX && leftX<maxLeftX){
       leftX = restVal;
     }
     else{
       leftX = map(leftX, 0, 4095, 0, 32767);
     }
 
-    if(leftY>=1889 && leftY<=1896){
+    if(minLeftY<leftY && leftY<maxLeftY){
       leftY = restVal;
     }
     else{
-      leftY = map(leftY, 0, 4095, 32767, 0);
+      leftY = map(leftY, 0, 4095, 0, 32767);
     }
 
-    if(rightX>=1806 && rightX<=1813){
+    if(minRightX<rightX && rightX<maxRightX){
       rightX = restVal;
     }
     else{
       rightX = map(rightX, 0, 4095, 0, 32767);
     }
 
-    if(rightY>=1852 && rightY<=1859){
+    if(minRightY<rightY && rightY<maxRightY){
       rightY = restVal;
     }
     else{
-      rightY = map(rightY, 0, 4095, 32767, 0);  
-    }       
+      rightY = map(rightY, 0, 4095, 0, 32767);
+    }
 
     bleGamepad.setLeftThumb(leftX,leftY);
     bleGamepad.setRightThumb(rightX,rightY);
   }
 }
-
-//https://www.youtube.com/watch?v=KTMq3vARsko
