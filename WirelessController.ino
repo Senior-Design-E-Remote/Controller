@@ -172,7 +172,7 @@ void loop()
       leftY = restVal;
     }
     else{
-      leftY = map(leftY, 0, 4095, 0, 32767);
+      leftY = map(leftY, 0, 4095, 32767, 0);
     }
 
     if(minRightX<rightX && rightX<maxRightX){
@@ -186,7 +186,7 @@ void loop()
       rightY = restVal;
     }
     else{
-      rightY = map(rightY, 0, 4095, 0, 32767);
+      rightY = map(rightY, 0, 4095, 32767, 0);
     }
 
     bleGamepad.setLeftThumb(leftX,leftY);
