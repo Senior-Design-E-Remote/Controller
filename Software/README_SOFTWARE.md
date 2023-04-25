@@ -60,3 +60,33 @@ Loop {
 ### Block Diagram
 
 <img src="SoftwareFlowchart.jpg">
+
+## Using the Code
+### Setup
+In order to upload the WirelessController code to your ESP, you need to setup the Arduino IDE, which you can install [here](https://www.arduino.cc/en/software).
+
+#### Step 1: Installing the Boards
+The Arduino IDE does not come with the ESP boards preinstalled, so you need to follow a few simple steps in order to get them installed. 
+
+1. Go to **File** -> **Preferences** to open the preferences menu. 
+
+2. Copy this url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json to the text box labeled "Additional Board Manager URLs". 
+
+3. Go to the Board Manager and search for esp, they should pop up and you should be able to hit install. Wait for the intall to finsh and you should be able to select ESP boards.
+
+#### Step 2: Installing the Libraries
+There are two different methods of installing the required libraries depending on what version of the Arduino IDE you have. 
+
+1. In Arduino IDE 1.6.2 and above, go to the Libraries Manager and search for both the Adafruit_MPR121 and ESP32-BLE-Gamepad libraries. Both should come up and there will be an option to install both.
+
+2. Go to the Githubs for each library found [here](*https://github.com/adafruit/Adafruit_MPR121) and [here](https://github.com/lemmingDev/ESP32-BLE-Gamepad). Download them as zip files, go to **Sketch** -> **Include Library** -> **Add .Zip Library**, and select the zip files. The library should appear in the library manager where you can then install them.
+
+#### Step 3: Uploading the Code:
+Now that the Arduino IDE is properly configured, you can now upload the code to your ESP by following these steps.
+1. Plug your ESP into the computer 
+2. Open the Arduino IDE and open the Board Manager
+3. Choose the Adafruit ESP32 Feather as the board for the corresponding COM Port.
+    * **Important Note**: Some computeres require the [CP210x USB to UART Bridge](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads) driver to properly read the ESP as connected to a COM port.
+4. If the text in the Board Manager dropdown menu becomes bolded, that means the ESP is connected and you can begin the upload.
+5. Wait for the upload to finish and verify the code is working by going to your bluetooth menu and see if E-Remote is avaiable to connect
+    * Note that first time compile and upload can take upwards of 5-10 minutes as the ESP32-BLE-Gamepad library takes a long time to compile. This is will go down in subsiquent compilations.
