@@ -81,7 +81,7 @@ There are two different methods of installing the required libraries depending o
 
 2. Go to the Githubs for each library found [here](*https://github.com/adafruit/Adafruit_MPR121) and [here](https://github.com/lemmingDev/ESP32-BLE-Gamepad). Download them as zip files, go to **Sketch** -> **Include Library** -> **Add .Zip Library**, and select the zip files. The library should appear in the library manager where you can then install them.
 
-#### Step 3: Uploading the Code:
+### Uploading the Code:
 Now that the Arduino IDE is properly configured, you can now upload the code to your ESP by following these steps.
 1. Plug your ESP into the computer 
 2. Open the Arduino IDE and open the Board Manager
@@ -90,3 +90,12 @@ Now that the Arduino IDE is properly configured, you can now upload the code to 
 4. If the text in the Board Manager dropdown menu becomes bolded, that means the ESP is connected and you can begin the upload.
 5. Wait for the upload to finish and verify the code is working by going to your bluetooth menu and see if E-Remote is avaiable to connect
     * Note that first time compile and upload can take upwards of 5-10 minutes as the ESP32-BLE-Gamepad library takes a long time to compile. This is will go down in subsiquent compilations.
+
+If all is successfull, you can connect to E-Remote through your computer's bluetooth menu where it will be registered as a generic gamepad. You can then connect it to the game library of your choice (we used Steam and you can find those steps in the User Manual).
+
+## Other Code
+This section will explain the other code found in the Software folder of this repository. These are various examples of hardware and other controller code that we made to help develop the final E-Remote product
+### Hardware Examples
+In this folder are various examples we made to test hardware for the E-Remote. These include tests for the logarithmic slider, a test for joystick drift, and several examples of tests for the MPR121 and the capacitive touch buttons. These examples hsould help you test individual hardware should you run into trouble with any of your components.
+### Wired Controller
+In this folder is the code for a wired controller which was the first working version of our controller code. This code is only compatible with the [Arduino Micro](https://store.arduino.cc/products/arduino-micro) and the [Arduino Leonardo](https://store.arduino.cc/products/arduino-leonardo-with-headers?queryID=undefined) as they are the only board with the ATmega32u4 which allows for USb communication with a computer. This example uses the XInput library and is a similar concept to the wireless controller code, but without the need to check previous button state or filter analog joystick noise as the library handles it automatically. When connected to a computer, it automatically registers as an Xbox 360 controller and works as any other Xbox controller would. This is an interesting tradeoff with the E-remote as the Wired controller has an easier setup with the predefined Xbox controlls but loses the user customizable controlls that come with E-Remote's generic gamepad status. Note: if you wish to run this code, the XInput library requires its own version of board installs. Just input follow Step 1 in the Setup seciton and use this url: https://raw.githubusercontent.com/dmadison/ArduinoXInput_Boards/master/package_dmadison_xinput_index.json
