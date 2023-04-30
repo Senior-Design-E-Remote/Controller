@@ -77,9 +77,9 @@ The Arduino IDE does not come with the ESP boards preinstalled, so you need to f
 #### Step 2: Installing the Libraries
 There are two different methods of installing the required libraries depending on what version of the Arduino IDE you have. 
 
-1. In Arduino IDE 1.6.2 and above, go to the Libraries Manager and search for both the Adafruit_MPR121 and ESP32-BLE-Gamepad libraries. Both should come up and there will be an option to install both.
+1. Go to the Libraries Manager and search for both the Adafruit_MPR121 and ESP32-BLE-Gamepad libraries. Both should come up and there will be an option to install both.
 
-2. Go to the Githubs for each library found [here](*https://github.com/adafruit/Adafruit_MPR121) and [here](https://github.com/lemmingDev/ESP32-BLE-Gamepad). Download them as zip files, go to **Sketch** -> **Include Library** -> **Add .Zip Library**, and select the zip files. The library should appear in the library manager where you can then install them.
+2. If th libraries do not automatically appear in the Libraries Manager, go to the Githubs for each library found [here](*https://github.com/adafruit/Adafruit_MPR121) and [here](https://github.com/lemmingDev/ESP32-BLE-Gamepad). Download them as zip files, go to **Sketch** -> **Include Library** -> **Add .Zip Library**, and select the zip files. The library should appear in the library manager where you can then install them.
 
 ### Uploading the Code:
 Now that the Arduino IDE is properly configured, you can now upload the code to your ESP by following these steps.
