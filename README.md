@@ -24,7 +24,7 @@ On top of that, the WirelessController.ino code that powers E-Remote can also be
 
 ### Final Product Setup
 
-<img src="/Pictures/FinalProductView.jpg">
+<img src="/Pictures/FInalProductView.jpg">
 
 <img src="/Pictures/TopDownView.jpg">
 
@@ -51,6 +51,6 @@ This section is to detail any issues we encountered while developing E-Remote. M
 
 * The pre-programmed LEDs cannot be changed digitally through the ESP32 (brightness or color pattern). Slider has to be connected directly to LEDs in parallel.
 
-* The wires that connect to the LED add enough resistance to effect the light output due to the length of the wire. Make sure all the wires connected to the LEDs’ cathode is the same length.
+* The wires that connect to the LED add enough resistance to effect the light output due to the length of the wire. Make sure all the wires connected to the LEDsâ€™ cathode is the same length.
 
 * ON/OFF switch could not be connected to the microcontroller because the ESP32 could not digitally turn OFF the system. Instead, the switch is connected in series with the positive side of the battery. Therefore to charge the battery, the switch has to be in the ON position.
