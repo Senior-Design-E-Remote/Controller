@@ -27,7 +27,7 @@ The Bill of Materials provides a comprehensive inventory of the components neede
 | 3           | 1578        | Adafruit     | Lithium Ion Polymer Battery - 3.7V 500mAh | 1   | 7.95       | 7.95        |
 | 4           | 679         | Adafruit     | Diffused 5mm Slow Fade Flashing RGB LED   | 8   | 0.495      | 3.96        |
 | 5           | N/A         | SchlamzTech  | 2" x 6" Protoboard                        | 1   | 4.99       | 4.99        |
-| 6           | N/A         | Home Depot   | 12î x 24î Plain Aluminum Sheet            | 1   | 7.31       | 7.32        |
+| 6           | N/A         | Home Depot   | 12‚Äù x 24‚Äù Plain Aluminum Sheet            | 1   | 7.31       | 7.32        |
 | 7           | 1982        | Adafruit     | MPR121 - 12-Key Capacitive Touch Sensor   | 1   | 15.90      | 15.90       |
 | 8           | B07PFSFFZZ  | Overture     | 3D Printer PLA Filament                   | 10  | 0.60       | 6.00        |
 | 9           | 3051        | Micro Center | 22 AGW Wire                               | 4   | .07        | 0.28        |
@@ -73,4 +73,4 @@ After the components have been soldered onto the solderable breadboard and teste
 
 ### Assembled System
 
-<img src="/Pictures/FinalProductView.jpg">
+<img src="/Pictures/FInalProductView.jpg">
